@@ -1,22 +1,5 @@
 # stui · 终端串口工具
 
-[![CI](https://github.com/AUXUWA/stui/actions/workflows/ci.yml/badge.svg)](https://github.com/AUXUWA/stui/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/AUXUWA/stui?label=release)](https://github.com/AUXUWA/stui/releases/latest)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org)
-
-**A terminal serial-port tool with both a TUI and a script/AI-friendly CLI.**
-
-`stui` is a serial-port debugger written in Rust. It ships two front-ends over one
-shared parsing and port layer, so the command line and the interface behave
-identically:
-
-- a **TUI** for humans — send and receive on one screen, filter, hex view,
-  follow the tail, record to a file;
-- a **CLI** for scripts and AI agents — structured JSON on stdout, meaningful
-  exit codes, and a built-in loopback device so the whole link can be
-  self-tested without any hardware.
-
 一个用 Rust 写的串口调试工具，同时提供 **TUI 交互界面** 和 **面向脚本 / AI 的 CLI 模式**，
 共用同一套解析与端口逻辑，因此命令行和界面里的行为完全一致。
 
@@ -439,3 +422,24 @@ node scripts/verify.mjs         # 独立校验器：直接拿二进制验退出�
 ## 许可证
 
 [MIT](LICENSE) © 2026 AUXUWA
+
+---
+
+## English
+
+[![CI](https://github.com/AUXUWA/stui/actions/workflows/ci.yml/badge.svg)](https://github.com/AUXUWA/stui/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/AUXUWA/stui?label=release)](https://github.com/AUXUWA/stui/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org)
+
+`stui` is a serial-port debugger written in Rust. It ships two front-ends over one
+shared parsing and port layer, so the command line and the interface behave
+identically:
+
+- a **TUI** for humans — send and receive on one screen, filter, hex view,
+  follow the tail, record to a file;
+- a **CLI** for scripts and AI agents — structured JSON on stdout, meaningful
+  exit codes, and a built-in loopback device so the whole link can be
+  self-tested without any hardware.
+
+The full documentation above is in Chinese.
