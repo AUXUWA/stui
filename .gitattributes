@@ -1,0 +1,13 @@
+# 统一编码与行尾：仓库内一律 UTF-8（无 BOM）+ LF
+* text=auto eol=lf
+
+*.rs   working-tree-encoding=UTF-8 text eol=lf
+*.md   working-tree-encoding=UTF-8 text eol=lf
+*.toml working-tree-encoding=UTF-8 text eol=lf
+*.lock working-tree-encoding=UTF-8 text eol=lf
+*.log  working-tree-encoding=UTF-8 text eol=lf
+
+# 二进制
+*.exe binary
+*.rlib binary
+*.pdb binary

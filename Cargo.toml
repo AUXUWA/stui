@@ -1,0 +1,21 @@
+[package]
+name = "stui"
+version = "0.1.0"
+edition = "2024"
+description = "终端串口工具：TUI 交互 + 面向脚本/AI 的 CLI 模式"
+license = "MIT"
+readme = "README.md"
+keywords = ["serial", "tui", "terminal", "uart", "cli"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+crossterm = "0.28"
+ratatui = "0.29"
+serialport = "4"
+unicode-width = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
