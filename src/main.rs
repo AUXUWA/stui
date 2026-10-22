@@ -136,6 +136,10 @@ struct Args {
 const HELP: &str = "\
 stui · 终端串口工具\n\
 \n\
+通用：\n\
+\x20 -V, --version      打印版本号\n\
+\x20 -h, --help        打印这份说明\n\
+\n\
 交互界面：\n\
 \x20 stui [-p <端口>] [-b <波特率>] [-o] [--fps <帧率>] [--no-config]\n\
 \x20 -p, --port <名>   预选端口（如 COM3、/dev/ttyUSB0）\n\
@@ -202,6 +206,12 @@ fn parse_args(argv: &[String]) -> Result<Args, String> {
                 args.fps = Some(n);
             }
             "--no-config" => args.no_config = true,
+            // 版本号从 Cargo.toml 来（CARGO_PKG_VERSION），不用手写常量 ——
+            // 手写的版本号迟早和发布出去的二进制对不上。
+            "-V" | "--version" => {
+                println!("stui {}", env!("CARGO_PKG_VERSION"));
+                std::process::exit(0);
+            }
             "-h" | "--help" => {
                 println!("{HELP}");
                 std::process::exit(0);
@@ -1169,6 +1179,7 @@ mod tests {
             "--parity",
             "--stops",
             "--flow",
+            "--version", // 版本号
             "鼠标",     // 鼠标支持
             "滚轮",     // 滚轮滚动数据区
         ] {

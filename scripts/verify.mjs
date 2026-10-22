@@ -266,6 +266,13 @@ console.log("--help（第二轮新增项）");
   }
 }
 
+console.log("--version");
+{
+  const r = run(["--version"]);
+  check("退出码为 0", r.code === 0, `实际 ${r.code}`);
+  check("输出形如 stui <版本>", /^stui \d+\.\d+\.\d+/.test(r.stdout.trim()), `实际 ${JSON.stringify(r.stdout.trim())}`);
+}
+
 // ---------------------------------------------------------------- 第三轮：新增能力
 
 console.log("send --expect（多个期望：全部命中）");
