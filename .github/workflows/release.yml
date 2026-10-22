@@ -42,6 +42,14 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      # serialport 在 Linux 上要通过 pkg-config 找 libudev 的头文件，
+      # GitHub 的 ubuntu 镜像默认没装 libudev-dev，不装就会在 build.rs 里炸掉。
+      - name: 安装系统依赖
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudev-dev pkg-config
+
       - name: 缓存构建产物
         uses: Swatinem/rust-cache@v2
         with:
