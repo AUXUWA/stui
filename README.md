@@ -1,5 +1,22 @@
 # stui · 终端串口工具
 
+[![CI](https://github.com/AUXUWA/stui/actions/workflows/ci.yml/badge.svg)](https://github.com/AUXUWA/stui/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/AUXUWA/stui?label=release)](https://github.com/AUXUWA/stui/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org)
+
+**A terminal serial-port tool with both a TUI and a script/AI-friendly CLI.**
+
+`stui` is a serial-port debugger written in Rust. It ships two front-ends over one
+shared parsing and port layer, so the command line and the interface behave
+identically:
+
+- a **TUI** for humans — send and receive on one screen, filter, hex view,
+  follow the tail, record to a file;
+- a **CLI** for scripts and AI agents — structured JSON on stdout, meaningful
+  exit codes, and a built-in loopback device so the whole link can be
+  self-tested without any hardware.
+
 一个用 Rust 写的串口调试工具，同时提供 **TUI 交互界面** 和 **面向脚本 / AI 的 CLI 模式**，
 共用同一套解析与端口逻辑，因此命令行和界面里的行为完全一致。
 
@@ -48,11 +65,40 @@
 - **CLI 模式**：`--json` 输出结构化结果与明确退出码，可直接被脚本或 AI 调用；内置 `sim` 虚拟回环设备，无硬件也能端到端自测。
 - **编码统一**：源码、文档、日志一律 UTF-8 无 BOM + LF；Windows 下启动时自动把控制台切到 UTF-8 代码页 65001。
 
-## 构建
+## 安装
+
+### 预编译二进制
+
+从 [Releases](https://github.com/AUXUWA/stui/releases) 下载对应平台的压缩包，
+解包即用，不需要 Rust 工具链：
+
+| 平台 | 压缩包 |
+| --- | --- |
+| Windows x86_64 | `stui-v0.1.0-windows-x86_64.zip` |
+| Linux x86_64 | `stui-v0.1.0-linux-x86_64.tar.gz` |
+| macOS (Apple Silicon) | `stui-v0.1.0-macos-aarch64.tar.gz` |
+| macOS (Intel) | `stui-v0.1.0-macos-x86_64.tar.gz` |
+
+Windows 上解压后直接跑 `stui.exe`；Linux / macOS 上 `tar -xzf` 之后给二进制加个
+可执行权限（`chmod +x stui`）即可。
+
+### 从源码构建
+
+需要 Rust 2024 edition（1.85 及以上）。
 
 ```bash
+git clone https://github.com/AUXUWA/stui.git
+cd stui
 cargo build --release        # 产物在 target/release/stui(.exe)
 cargo test                   # 单元测试 + CLI 契约测试
+```
+
+`cargo test` 里除了单元测试，还有一组**面向脚本 / AI 的命令行契约测试**；
+另有一个独立校验器 `scripts/verify.mjs`，不经过 cargo、直接拿构建好的二进制
+逐条验退出码与 JSON 字段：
+
+```bash
+cargo build --release && node scripts/verify.mjs target/release/stui.exe
 ```
 
 ## 一、TUI 交互模式
@@ -375,3 +421,19 @@ $ stui record --port sim --duration 300 --out rec.bin --json
 - 统计页与帮助页共用同一个滚动位置，在这两页之间来回切时滚动位置会被复位。
 - 过滤是**记录级**的：命中的记录整条显示，代价是单条很长的记录不会只显示匹配的那几行。
 - 过滤的两个开关（`I` / `!`）在**任何页签**都按得动，但它们只影响**终端页**的数据区：在日志 / 统计 / 帮助页按 `I` / `!` 不会报错，只是当前页看不出变化（统计页的「过滤选项」一行能看到当前状态）。
+
+## 贡献
+
+欢迎提 issue 与 PR。动手前先跑一遍：
+
+```bash
+cargo test                      # 单元测试 + 命令行契约测试
+node scripts/verify.mjs         # 独立校验器：直接拿二进制验退出码与 JSON 字段
+```
+
+改动显示逻辑（解码、列宽、换行切分、截断）时，**既有测试先跑一遍** ——
+那些断言里写着「为什么」而不只是「是什么」，改坏了会立刻变红。
+
+## 许可证
+
+[MIT](LICENSE) © 2026 AUXUWA

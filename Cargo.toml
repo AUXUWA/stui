@@ -5,8 +5,11 @@ edition = "2024"
 description = "终端串口工具：TUI 交互 + 面向脚本/AI 的 CLI 模式"
 license = "MIT"
 readme = "README.md"
-keywords = ["serial", "tui", "terminal", "uart", "cli"]
-categories = ["command-line-utilities"]
+repository = "https://github.com/AUXUWA/stui"
+homepage = "https://github.com/AUXUWA/stui"
+authors = ["AUXUWA"]
+keywords = ["serial", "tui", "terminal", "uart", "cli", "at", "modbus"]
+categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 crossterm = "0.28"

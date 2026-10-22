@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 缓存构建产物
+        uses: Swatinem/rust-cache@v2
+
+      - name: 构建
+        run: cargo build --release
+
+      # 单元测试 + 命令行契约测试。
+      # 契约测试只连内置的 sim 回环设备，不碰真实串口，因此三个平台都能直接跑。
+      - name: 测试
+        run: cargo test
+
+      # 独立校验器：不经过 cargo test，直接拿构建好的二进制验退出码与 JSON 字段。
+      - name: 校验命令行契约
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            BIN=target/release/stui.exe
+          else
+            BIN=target/release/stui
+          fi
+          node scripts/verify.mjs "$BIN"
