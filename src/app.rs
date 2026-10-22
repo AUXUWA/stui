@@ -2833,7 +2833,7 @@ mod tests {
         let elapsed = start.elapsed();
         assert!(n > 0);
         assert!(
-            elapsed < Duration::from_millis(500),
+            elapsed < Duration::from_millis(2000),
             "50 次全量过滤耗时 {elapsed:?}，每帧 {} ms",
             elapsed.as_millis() / 50
         );
@@ -2846,6 +2846,14 @@ mod tests {
     /// 阈值压在实测值上，一有后台负载就变红 ——  flaky 的性能测试等于没有测试。
     /// 改成按字节扫之后实测约 107 毫秒，留两倍多的余量，
     /// 而回到旧实现（430 毫秒以上）一定会被这条断言抓住。
+    ///
+    /// 但绝对阈值有个大坑：它是跟着**机器速度**走的。同一份代码在开发机上
+    /// 117 毫秒，在 GitHub 的 Windows runner 上 359 毫秒 —— 按开发机的实测值
+    /// 卡的阈值到 CI 上必红，而 CI 红了并不会告诉你代码哪里变差了。
+    ///
+    /// 所以真正的护栏是**相对**阈值：拿「忽略大小写」与「精确匹配」两条路径的
+    /// 耗时比来卡。两条路径跑在同一台机器上，比值不随机器快慢变化；
+    /// 旧实现（按字符扫、每次调用还分配两个 Vec）比值是几十倍，回不来。
     #[test]
     fn case_insensitive_filtering_stays_fast() {
         let mut app = App::new();
@@ -2853,18 +2861,36 @@ mod tests {
             app.feed_rx(format!("row-{i} payload 温度传感器\r\n").as_bytes());
         }
         app.apply_filter("温度".into());
+
+        // 精确匹配：走 std 的 str::contains
+        let start = Instant::now();
+        let mut n = 0;
+        for _ in 0..50 {
+            n = app.stream_filtered().count();
+        }
+        let exact = start.elapsed();
+        assert!(n > 0);
+
+        // 忽略大小写：走 fmt::contains_ignore_ascii_case
+        // （切开关会让过滤缓存失效，下一轮是真的重新扫一遍）
         app.toggle_filter_ci();
         let start = Instant::now();
         let mut n = 0;
         for _ in 0..50 {
             n = app.stream_filtered().count();
         }
-        let elapsed = start.elapsed();
+        let ci = start.elapsed();
         assert!(n > 0);
+
         assert!(
-            elapsed < Duration::from_millis(250),
-            "50 次忽略大小写的全量过滤耗时 {elapsed:?}，每帧 {} ms",
-            elapsed.as_millis() / 50
+            ci <= exact * 6,
+            "忽略大小写过滤比精确匹配慢了太多：精确 {exact:?} vs 忽略大小写 {ci:?}"
+        );
+        // 绝对天花板只兜住「两条路径都慢得离谱」的情况，阈值给慢机器留足余量
+        assert!(
+            ci < Duration::from_millis(2000),
+            "50 次忽略大小写的全量过滤耗时 {ci:?}，每帧 {} ms",
+            ci.as_millis() / 50
         );
     }
 
@@ -2939,7 +2965,7 @@ mod tests {
         let elapsed = start.elapsed();
         assert!(total > 0);
         assert!(
-            elapsed < Duration::from_millis(500),
+            elapsed < Duration::from_millis(2000),
             "50 次全量行数统计耗时 {elapsed:?}，每帧会退化成 {} ms",
             elapsed.as_millis() / 50
         );
@@ -3688,7 +3714,7 @@ mod tests {
         let cached = start.elapsed();
         assert!(cached_total > 0);
         assert!(
-            cached < Duration::from_millis(500),
+            cached < Duration::from_millis(2000),
             "50 次全量折行行数统计耗时 {cached:?}，每帧 {} ms",
             cached.as_millis() / 50
         );
